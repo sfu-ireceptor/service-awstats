@@ -3,10 +3,18 @@ AWstats for iReceptor web service
 
 Note: fork from https://github.com/pabra/docker_awstats
 
-Awstats container based on `httpd:2.4-alpine` to keep it small. It's configured
+Awstats container based on `httpd:2.4-alpine` to keep it small. It's configures
 that way, so you can easily put a reverse proxy (like Nginx) in front.
 
 Read all about [awstats config](http://www.awstats.org/docs/awstats_config.html)
+
+
+Supported tags and respective `Dockerfile` links
+------------------------------------------------
+
+* [`7.8-xx-sha`, `7.8`, `latest`](https://github.com/pabra/docker_awstats/blob/7.8/Dockerfile)
+* [`7.7-xx-sha`, `7.7`](https://github.com/pabra/docker_awstats/blob/7.7/Dockerfile)
+* [`master-xx-sha`, `edge`](https://github.com/pabra/docker_awstats/blob/master/Dockerfile)
 
 
 Quickstart
@@ -34,15 +42,36 @@ Add this line to your `/etc/crontab` to let Awstats analyze your logs every 10 m
 */10 * * * * root docker exec awstats awstats_updateall.pl now > /dev/null
 ```
 
+By default, the timezone in the container will be UTC. To configure a different
+timezone in your container, set the environment variable `TZ` to your timezone,
+adding the following to your command line at the container start:
+
+```
+    --env TZ="Antarctica/South_Pole"
+```
+
 
 Advanced
 ========
+
+Run extra commands on the entrypoint
+------------------------------------
+
+If you need to execute some command before httpd starts (i.e. a cron daemon inside
+the container), you can bind-mount a file `/usr/local/bin/autorun.sh` that will
+be executed during the entrypoint. Add the following volume
+
+```
+...
+    --volume /path/to/my/autorun.sh:/usr/local/bin/autorun.sh:ro
+...
+```
 
 Analyze old log files
 ---------------------
 
 Awstats only processes lines in log files that are newer than the newest already
-known line.  
+known line.
 Means: You cannot analyze older log files later. Start with oldest ones first.
 You may need to delete already processed data by `rm /var/lib/awstats/*`
 
